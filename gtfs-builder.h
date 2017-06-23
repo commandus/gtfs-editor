@@ -10,7 +10,6 @@
 
 #include <string>
 #include "gtfs-helper.h"
-#include "gtfs-realtime.pb.h"
 #include "agency.h"
 #include "stops.h"
 #include "routes.h"

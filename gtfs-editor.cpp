@@ -42,8 +42,8 @@ int parseCmd
 	struct arg_lit *a_help = arg_lit0("h", "help", "Show this help");
 	struct arg_end *a_end = arg_end(20);
 
-	void* argtable[] = { a_interface, a_port,
-		a_gtfs_folder, a_gtfs_commit, a_gtfs_check, a_gtfs_print, a_time_zone_offset,
+	void* argtable[] = { 
+		a_gtfs_folder, a_time_zone_offset,
 		a_help, a_end };
 
 	int nerrors;
