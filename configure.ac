@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 AC_INIT([gtfs-editor], [0.1], [andrei.i.ivanov@commandus.com])
-AM_INIT_AUTOMAKE([1.11 foreign no-define])
+AM_INIT_AUTOMAKE([1.11 foreign no-define subdir-objects])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SRCDIR([gtfs-editor.cpp])
 AC_CONFIG_HEADERS([config.h])

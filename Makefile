@@ -111,6 +111,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(configdir)" \
 	"$(DESTDIR)$(includedir)"
 PROGRAMS = $(bin_PROGRAMS)
+am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 =
 am_gtfs_editor_OBJECTS = gtfs_editor-gtfs-editor.$(OBJEXT) \
 	gtfs_editor-gtfs-builder.$(OBJEXT) \
@@ -119,7 +120,9 @@ am_gtfs_editor_OBJECTS = gtfs_editor-gtfs-editor.$(OBJEXT) \
 	gtfs_editor-trips.$(OBJEXT) gtfs_editor-stop_times.$(OBJEXT) \
 	gtfs_editor-calendar.$(OBJEXT) \
 	gtfs_editor-calendar_dates.$(OBJEXT) \
-	gtfs_editor-utilstring.$(OBJEXT) $(am__objects_1)
+	gtfs_editor-utilstring.$(OBJEXT) \
+	ext/imgui/gtfs_editor-imgui.$(OBJEXT) \
+	ext/imgui/gtfs_editor-imgui_draw.$(OBJEXT) $(am__objects_1)
 nodist_gtfs_editor_OBJECTS =
 gtfs_editor_OBJECTS = $(am_gtfs_editor_OBJECTS) \
 	$(nodist_gtfs_editor_OBJECTS)
@@ -415,10 +418,12 @@ BUILT_SOURCES =
 CLEANFILES = 
 nobase_dist_include_HEADERS = \
 gtfs-editor-config.h \
-gtfs-helper.h gtfs-builder.h agency.h stops.h routes.h trips.h stop_times.h calendar.h calendar_dates.h
+gtfs-helper.h gtfs-builder.h agency.h stops.h routes.h trips.h stop_times.h calendar.h calendar_dates.h \
+ext/imgui/imconfig.h ext/imgui/imgui.h ext/imgui/imgui_internal.h ext/imgui/stb_rect_pack.h \
+ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h
 
 common_src = 
-commonlibs = -L/usr/local/lib/ -largtable2
+commonlibs = -L/usr/local/lib/ -largtable2 -lglfw -lGLU -lGL
 
 #
 # gui
@@ -427,10 +432,11 @@ gtfs_editor_SOURCES = \
 	gtfs-editor.cpp gtfs-builder.cpp gtfs-helper.cpp \
 	agency.cpp stops.cpp routes.cpp trips.cpp stop_times.cpp calendar.cpp calendar_dates.cpp \
 	utilstring.cpp \
+	ext/imgui/imgui.cpp ext/imgui/imgui_draw.cpp \
 	$(common_src)
 
 gtfs_editor_LDADD = $(commonlibs)
-gtfs_editor_CPPFLAGS = $(commoncppflags)
+gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
 
 #
 # Configs, readme, CMake etc.
@@ -541,6 +547,16 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+ext/imgui/$(am__dirstamp):
+	@$(MKDIR_P) ext/imgui
+	@: > ext/imgui/$(am__dirstamp)
+ext/imgui/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ext/imgui/$(DEPDIR)
+	@: > ext/imgui/$(DEPDIR)/$(am__dirstamp)
+ext/imgui/gtfs_editor-imgui.$(OBJEXT): ext/imgui/$(am__dirstamp) \
+	ext/imgui/$(DEPDIR)/$(am__dirstamp)
+ext/imgui/gtfs_editor-imgui_draw.$(OBJEXT): ext/imgui/$(am__dirstamp) \
+	ext/imgui/$(DEPDIR)/$(am__dirstamp)
 
 gtfs-editor$(EXEEXT): $(gtfs_editor_OBJECTS) $(gtfs_editor_DEPENDENCIES) $(EXTRA_gtfs_editor_DEPENDENCIES) 
 	@rm -f gtfs-editor$(EXEEXT)
@@ -548,6 +564,7 @@ gtfs-editor$(EXEEXT): $(gtfs_editor_OBJECTS) $(gtfs_editor_DEPENDENCIES) $(EXTRA
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ext/imgui/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -563,24 +580,29 @@ include ./$(DEPDIR)/gtfs_editor-stop_times.Po
 include ./$(DEPDIR)/gtfs_editor-stops.Po
 include ./$(DEPDIR)/gtfs_editor-trips.Po
 include ./$(DEPDIR)/gtfs_editor-utilstring.Po
+include ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Po
+include ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Po
 
 .cpp.o:
-	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
 #	$(AM_V_CXX)source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
 #	$(AM_V_CXX)source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cpp.lo:
-	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Plo
 #	$(AM_V_CXX)source='$<' object='$@' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(LTCXXCOMPILE) -c -o $@ $<
@@ -738,6 +760,34 @@ gtfs_editor-utilstring.obj: utilstring.cpp
 #	$(AM_V_CXX)source='utilstring.cpp' object='gtfs_editor-utilstring.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gtfs_editor-utilstring.obj `if test -f 'utilstring.cpp'; then $(CYGPATH_W) 'utilstring.cpp'; else $(CYGPATH_W) '$(srcdir)/utilstring.cpp'; fi`
+
+ext/imgui/gtfs_editor-imgui.o: ext/imgui/imgui.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/imgui/gtfs_editor-imgui.o -MD -MP -MF ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Tpo -c -o ext/imgui/gtfs_editor-imgui.o `test -f 'ext/imgui/imgui.cpp' || echo '$(srcdir)/'`ext/imgui/imgui.cpp
+	$(AM_V_at)$(am__mv) ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Tpo ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Po
+#	$(AM_V_CXX)source='ext/imgui/imgui.cpp' object='ext/imgui/gtfs_editor-imgui.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/imgui/gtfs_editor-imgui.o `test -f 'ext/imgui/imgui.cpp' || echo '$(srcdir)/'`ext/imgui/imgui.cpp
+
+ext/imgui/gtfs_editor-imgui.obj: ext/imgui/imgui.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/imgui/gtfs_editor-imgui.obj -MD -MP -MF ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Tpo -c -o ext/imgui/gtfs_editor-imgui.obj `if test -f 'ext/imgui/imgui.cpp'; then $(CYGPATH_W) 'ext/imgui/imgui.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/imgui/imgui.cpp'; fi`
+	$(AM_V_at)$(am__mv) ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Tpo ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Po
+#	$(AM_V_CXX)source='ext/imgui/imgui.cpp' object='ext/imgui/gtfs_editor-imgui.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/imgui/gtfs_editor-imgui.obj `if test -f 'ext/imgui/imgui.cpp'; then $(CYGPATH_W) 'ext/imgui/imgui.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/imgui/imgui.cpp'; fi`
+
+ext/imgui/gtfs_editor-imgui_draw.o: ext/imgui/imgui_draw.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/imgui/gtfs_editor-imgui_draw.o -MD -MP -MF ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Tpo -c -o ext/imgui/gtfs_editor-imgui_draw.o `test -f 'ext/imgui/imgui_draw.cpp' || echo '$(srcdir)/'`ext/imgui/imgui_draw.cpp
+	$(AM_V_at)$(am__mv) ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Tpo ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Po
+#	$(AM_V_CXX)source='ext/imgui/imgui_draw.cpp' object='ext/imgui/gtfs_editor-imgui_draw.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/imgui/gtfs_editor-imgui_draw.o `test -f 'ext/imgui/imgui_draw.cpp' || echo '$(srcdir)/'`ext/imgui/imgui_draw.cpp
+
+ext/imgui/gtfs_editor-imgui_draw.obj: ext/imgui/imgui_draw.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/imgui/gtfs_editor-imgui_draw.obj -MD -MP -MF ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Tpo -c -o ext/imgui/gtfs_editor-imgui_draw.obj `if test -f 'ext/imgui/imgui_draw.cpp'; then $(CYGPATH_W) 'ext/imgui/imgui_draw.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/imgui/imgui_draw.cpp'; fi`
+	$(AM_V_at)$(am__mv) ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Tpo ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Po
+#	$(AM_V_CXX)source='ext/imgui/imgui_draw.cpp' object='ext/imgui/gtfs_editor-imgui_draw.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/imgui/gtfs_editor-imgui_draw.obj `if test -f 'ext/imgui/imgui_draw.cpp'; then $(CYGPATH_W) 'ext/imgui/imgui_draw.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/imgui/imgui_draw.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1124,6 +1174,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ext/imgui/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ext/imgui/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1135,7 +1187,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -1184,7 +1236,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
