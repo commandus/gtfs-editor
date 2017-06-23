@@ -26,7 +26,7 @@ ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h
 
 common_src =
 
-commonlibs = -L/usr/local/lib/ -largtable2 -lglfw -lGLU -lGL
+commonlibs = -L/usr/local/lib/ -largtable2 -lglfw -lGL
 
 #
 # gui

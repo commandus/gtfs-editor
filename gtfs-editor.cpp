@@ -3,7 +3,7 @@
  */
 #include <cstdlib>
 #include <GLFW/glfw3.h>
-#include "imgui.h"
+#include <imgui.h>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -127,7 +127,7 @@ int imgui0(void)
     }
 
     static GLFWwindow* window {
-        glfwCreateWindow(320, 240, "Simple example", NULL, NULL) 
+        glfwCreateWindow(640, 480, "GTFS", NULL, NULL) 
     };
 
     if (!window)
@@ -139,7 +139,8 @@ int imgui0(void)
     glfwMakeContextCurrent(window);
 
     // Close window on pressing ESC
-    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
+	{
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
     });
@@ -155,10 +156,9 @@ int imgui0(void)
 
         // Use ImGui functions between here and Render()
         ImGui::NewFrame();
-
         // This creates a window
-        ImGui::Begin("Window Title Here");
-        ImGui::Text("Hello, world!");
+        ImGui::Begin(u8"Маршруты");
+        ImGui::Text(u8"Список маршрутов от и до");
         ImGui::End();
 
         // ImGui functions end here
@@ -188,6 +188,11 @@ void setup(GLFWwindow* window)
     GLuint g_FontTexture;
 
     ImGuiIO& io { ImGui::GetIO() };
+
+	io.Fonts->AddFontDefault();
+	ImFontConfig config;
+	config.MergeMode = true;
+	io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 13.0f, &config, io.Fonts->GetGlyphRangesCyrillic());
 
     io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
 
