@@ -322,7 +322,7 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld -m elf_x86_64
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -largtable2 
+LIBS = -lGL -lglfw 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
@@ -407,7 +407,7 @@ top_builddir = .
 top_srcdir = .
 SUBDIRS = .
 ACLOCAL_AMFLAGS = -I m4
-commoncppflags = -std=c++11 -O2 
+commoncppflags = -std=c++11 -O2
 #commoncppflags = -std=c++11 -g3 -O0 
 
 #
@@ -443,7 +443,8 @@ gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
 #
 configdir = $(datadir)
 dist_config_DATA = \
-README.md HISTORY
+	README.md HISTORY \
+	Roboto-Medium.ttf
 
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

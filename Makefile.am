@@ -4,15 +4,15 @@ ACLOCAL_AMFLAGS = -I m4
 if DEBUG
 commoncppflags = -std=c++11 -g3 -O0 
 else
-commoncppflags = -std=c++11 -O2 
+commoncppflags = -std=c++11 -O2
 endif
 
 #
 #	Exclude generated sources from distribution
 #
-nodist_gtfs_editor_SOURCES = 
+nodist_gtfs_editor_SOURCES =
 BUILT_SOURCES =
-CLEANFILES = 
+CLEANFILES =
 
 #
 # Binaries
@@ -47,4 +47,5 @@ gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
 #
 configdir = $(datadir)
 dist_config_DATA = \
-README.md HISTORY
+	README.md HISTORY \
+	Roboto-Medium.ttf

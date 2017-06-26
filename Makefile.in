@@ -407,7 +407,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = .
 ACLOCAL_AMFLAGS = -I m4
-@DEBUG_FALSE@commoncppflags = -std=c++11 -O2 
+@DEBUG_FALSE@commoncppflags = -std=c++11 -O2
 @DEBUG_TRUE@commoncppflags = -std=c++11 -g3 -O0 
 
 #
@@ -443,7 +443,8 @@ gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
 #
 configdir = $(datadir)
 dist_config_DATA = \
-README.md HISTORY
+	README.md HISTORY \
+	Roboto-Medium.ttf
 
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
