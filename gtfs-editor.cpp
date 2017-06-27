@@ -186,6 +186,7 @@ int imgui1(Config *config)
 	int items_count = 10;
 	int current_item = -1;
 	char* items[10] = {"8:00", "9:00", "3", "4", "5", "6", "7", "8", "9", "10"};
+	char stime[30];
 	bool weekdays[7] = {false, false, false, false, false, false, false };
 
 	// Main loop
@@ -254,11 +255,32 @@ int imgui1(Config *config)
 			// current_item++;
 		}
 	
-		if (ImGui::Button("Закрыть")) {
+
+		x = ImGui::GetCursorPosX();
+		y = ImGui::GetCursorPosY();
+	
+		ImGui::InputText(u8"    ", stime, sizeof(stime));
+
+		ImGui::SetCursorPosX(x + list_width + padding_listbox);
+		ImGui::SetCursorPosY(y);
+		if (ImGui::Button(" + ")) 
+		{
+		}
+		ImGui::SetCursorPosX(x + list_width + padding_listbox + 30);
+		ImGui::SetCursorPosY(y);
+		if (ImGui::Button(" - ")) 
+		{
+		}
+
+		ImGui::SetCursorPosX(x + 2 *(list_width + padding_listbox));
+		ImGui::SetCursorPosY(y);
+		if (ImGui::Button("Закрыть")) 
+		{
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+
+		// ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 		ImGui::End();
 		// Rendering
 		glViewport(0, 0, display_w, display_h);
