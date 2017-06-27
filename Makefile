@@ -112,7 +112,7 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(configdir)" \
 	"$(DESTDIR)$(includedir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 =
+am__objects_1 = ext/opengl/gtfs_editor-imgui_impl_glfw.$(OBJEXT)
 am_gtfs_editor_OBJECTS = gtfs_editor-gtfs-editor.$(OBJEXT) \
 	gtfs_editor-gtfs-builder.$(OBJEXT) \
 	gtfs_editor-gtfs-helper.$(OBJEXT) gtfs_editor-agency.$(OBJEXT) \
@@ -408,7 +408,7 @@ top_srcdir = .
 SUBDIRS = .
 ACLOCAL_AMFLAGS = -I m4
 commoncppflags = -std=c++11 -O2
-#commoncppflags = -std=c++11 -g3 -O0 
+#commoncppflags = -std=c++11 -g3 -O0
 
 #
 #	Exclude generated sources from distribution
@@ -416,17 +416,22 @@ commoncppflags = -std=c++11 -O2
 nodist_gtfs_editor_SOURCES = 
 BUILT_SOURCES = 
 CLEANFILES = 
+
+#
+#	Headers
+#
 nobase_dist_include_HEADERS = \
 gtfs-editor-config.h \
 gtfs-helper.h gtfs-builder.h agency.h stops.h routes.h trips.h stop_times.h calendar.h calendar_dates.h \
 ext/imgui/imconfig.h ext/imgui/imgui.h ext/imgui/imgui_internal.h ext/imgui/stb_rect_pack.h \
-ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h
+ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h \
+ext/opengl/imgui_impl_glfw.h
 
-common_src = 
+common_src = ext/opengl/imgui_impl_glfw.cpp
 commonlibs = -L/usr/local/lib/ -largtable2 -lglfw -lGL
 
 #
-# gui
+#	gui
 #
 gtfs_editor_SOURCES = \
 	gtfs-editor.cpp gtfs-builder.cpp gtfs-helper.cpp \
@@ -436,15 +441,16 @@ gtfs_editor_SOURCES = \
 	$(common_src)
 
 gtfs_editor_LDADD = $(commonlibs)
-gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
+gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui -I ext/opengl
 
 #
-# Configs, readme, CMake etc.
+#	Configs, readme, CMake etc.
 #
 configdir = $(datadir)
 dist_config_DATA = \
 	README.md HISTORY \
-	Roboto-Medium.ttf
+	Roboto-Medium.ttf \
+	.kdev_include_paths
 
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -558,6 +564,15 @@ ext/imgui/gtfs_editor-imgui.$(OBJEXT): ext/imgui/$(am__dirstamp) \
 	ext/imgui/$(DEPDIR)/$(am__dirstamp)
 ext/imgui/gtfs_editor-imgui_draw.$(OBJEXT): ext/imgui/$(am__dirstamp) \
 	ext/imgui/$(DEPDIR)/$(am__dirstamp)
+ext/opengl/$(am__dirstamp):
+	@$(MKDIR_P) ext/opengl
+	@: > ext/opengl/$(am__dirstamp)
+ext/opengl/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ext/opengl/$(DEPDIR)
+	@: > ext/opengl/$(DEPDIR)/$(am__dirstamp)
+ext/opengl/gtfs_editor-imgui_impl_glfw.$(OBJEXT):  \
+	ext/opengl/$(am__dirstamp) \
+	ext/opengl/$(DEPDIR)/$(am__dirstamp)
 
 gtfs-editor$(EXEEXT): $(gtfs_editor_OBJECTS) $(gtfs_editor_DEPENDENCIES) $(EXTRA_gtfs_editor_DEPENDENCIES) 
 	@rm -f gtfs-editor$(EXEEXT)
@@ -566,6 +581,7 @@ gtfs-editor$(EXEEXT): $(gtfs_editor_OBJECTS) $(gtfs_editor_DEPENDENCIES) $(EXTRA
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f ext/imgui/*.$(OBJEXT)
+	-rm -f ext/opengl/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -583,6 +599,7 @@ include ./$(DEPDIR)/gtfs_editor-trips.Po
 include ./$(DEPDIR)/gtfs_editor-utilstring.Po
 include ext/imgui/$(DEPDIR)/gtfs_editor-imgui.Po
 include ext/imgui/$(DEPDIR)/gtfs_editor-imgui_draw.Po
+include ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Po
 
 .cpp.o:
 	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -789,6 +806,20 @@ ext/imgui/gtfs_editor-imgui_draw.obj: ext/imgui/imgui_draw.cpp
 #	$(AM_V_CXX)source='ext/imgui/imgui_draw.cpp' object='ext/imgui/gtfs_editor-imgui_draw.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/imgui/gtfs_editor-imgui_draw.obj `if test -f 'ext/imgui/imgui_draw.cpp'; then $(CYGPATH_W) 'ext/imgui/imgui_draw.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/imgui/imgui_draw.cpp'; fi`
+
+ext/opengl/gtfs_editor-imgui_impl_glfw.o: ext/opengl/imgui_impl_glfw.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/opengl/gtfs_editor-imgui_impl_glfw.o -MD -MP -MF ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Tpo -c -o ext/opengl/gtfs_editor-imgui_impl_glfw.o `test -f 'ext/opengl/imgui_impl_glfw.cpp' || echo '$(srcdir)/'`ext/opengl/imgui_impl_glfw.cpp
+	$(AM_V_at)$(am__mv) ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Tpo ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Po
+#	$(AM_V_CXX)source='ext/opengl/imgui_impl_glfw.cpp' object='ext/opengl/gtfs_editor-imgui_impl_glfw.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/opengl/gtfs_editor-imgui_impl_glfw.o `test -f 'ext/opengl/imgui_impl_glfw.cpp' || echo '$(srcdir)/'`ext/opengl/imgui_impl_glfw.cpp
+
+ext/opengl/gtfs_editor-imgui_impl_glfw.obj: ext/opengl/imgui_impl_glfw.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ext/opengl/gtfs_editor-imgui_impl_glfw.obj -MD -MP -MF ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Tpo -c -o ext/opengl/gtfs_editor-imgui_impl_glfw.obj `if test -f 'ext/opengl/imgui_impl_glfw.cpp'; then $(CYGPATH_W) 'ext/opengl/imgui_impl_glfw.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/opengl/imgui_impl_glfw.cpp'; fi`
+	$(AM_V_at)$(am__mv) ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Tpo ext/opengl/$(DEPDIR)/gtfs_editor-imgui_impl_glfw.Po
+#	$(AM_V_CXX)source='ext/opengl/imgui_impl_glfw.cpp' object='ext/opengl/gtfs_editor-imgui_impl_glfw.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(gtfs_editor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ext/opengl/gtfs_editor-imgui_impl_glfw.obj `if test -f 'ext/opengl/imgui_impl_glfw.cpp'; then $(CYGPATH_W) 'ext/opengl/imgui_impl_glfw.cpp'; else $(CYGPATH_W) '$(srcdir)/ext/opengl/imgui_impl_glfw.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1177,6 +1208,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f ext/imgui/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ext/imgui/$(am__dirstamp)
+	-rm -f ext/opengl/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ext/opengl/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1188,7 +1221,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR) ext/opengl/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -1237,7 +1270,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) ext/imgui/$(DEPDIR) ext/opengl/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

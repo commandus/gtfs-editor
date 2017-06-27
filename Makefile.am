@@ -2,7 +2,7 @@ SUBDIRS = .
 ACLOCAL_AMFLAGS = -I m4
 
 if DEBUG
-commoncppflags = -std=c++11 -g3 -O0 
+commoncppflags = -std=c++11 -g3 -O0
 else
 commoncppflags = -std=c++11 -O2
 endif
@@ -15,23 +15,27 @@ BUILT_SOURCES =
 CLEANFILES =
 
 #
-# Binaries
+#	Binaries
 #
 bin_PROGRAMS=gtfs-editor
+
+#
+#	Headers
+#
 nobase_dist_include_HEADERS = \
 gtfs-editor-config.h \
 gtfs-helper.h gtfs-builder.h agency.h stops.h routes.h trips.h stop_times.h calendar.h calendar_dates.h \
 ext/imgui/imconfig.h ext/imgui/imgui.h ext/imgui/imgui_internal.h ext/imgui/stb_rect_pack.h \
-ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h
+ext/imgui/stb_textedit.h ext/imgui/stb_truetype.h \
+ext/opengl/imgui_impl_glfw.h
 
-common_src =
+common_src = ext/opengl/imgui_impl_glfw.cpp
 
 commonlibs = -L/usr/local/lib/ -largtable2 -lglfw -lGL
 
 #
-# gui
+#	gui
 #
-
 gtfs_editor_SOURCES= \
 	gtfs-editor.cpp gtfs-builder.cpp gtfs-helper.cpp \
 	agency.cpp stops.cpp routes.cpp trips.cpp stop_times.cpp calendar.cpp calendar_dates.cpp \
@@ -40,12 +44,13 @@ gtfs_editor_SOURCES= \
 	$(common_src)
 
 gtfs_editor_LDADD = $(commonlibs)
-gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui
+gtfs_editor_CPPFLAGS = $(commoncppflags) -I ext/imgui -I ext/opengl
 
 #
-# Configs, readme, CMake etc.
+#	Configs, readme, CMake etc.
 #
 configdir = $(datadir)
 dist_config_DATA = \
 	README.md HISTORY \
-	Roboto-Medium.ttf
+	Roboto-Medium.ttf \
+	.kdev_include_paths
